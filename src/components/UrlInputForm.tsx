@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
+import { Search, X, AlertTriangle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface UrlInputFormProps {
   onCheckUrl: (url: string) => void;
@@ -11,10 +12,20 @@ interface UrlInputFormProps {
 
 const UrlInputForm: React.FC<UrlInputFormProps> = ({ onCheckUrl, isLoading }) => {
   const [url, setUrl] = useState('');
-
+  const { toast } = useToast();
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (url.trim()) {
+      // Warn user if they're checking a known malicious test URL
+      if (url.includes('google3.com') || url.includes('phishing') || url.includes('malware')) {
+        toast({
+          title: "Test URL Detected",
+          description: "You're checking a test/example malicious URL. In a real scenario, never navigate to known malicious URLs.",
+          variant: "default",
+          icon: <AlertTriangle className="h-4 w-4 text-warning" />
+        });
+      }
       onCheckUrl(url);
     }
   };
@@ -22,6 +33,16 @@ const UrlInputForm: React.FC<UrlInputFormProps> = ({ onCheckUrl, isLoading }) =>
   const handleClear = () => {
     setUrl('');
   };
+
+  // Some examples of URLs to test (for development purposes)
+  const exampleUrls = [
+    'google.com',
+    'login-secure-paypal.tk',
+    'facebook-security-login.gq',
+    'microsoft365-verify.ml',
+    'amazon-account-verify.cf',
+    'apple-id-confirm.xyz'
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-2">
@@ -62,6 +83,21 @@ const UrlInputForm: React.FC<UrlInputFormProps> = ({ onCheckUrl, isLoading }) =>
           )}
         </Button>
       </div>
+      
+      {/* Test URL examples - commented out for production */}
+      {/* <div className="mt-2 text-xs text-gray-500">
+        <span className="font-medium">Test examples:</span> 
+        {exampleUrls.map((example, index) => (
+          <button
+            type="button"
+            key={index}
+            className="ml-2 text-blue-500 hover:underline"
+            onClick={() => setUrl(example)}
+          >
+            {example}
+          </button>
+        ))}
+      </div> */}
     </form>
   );
 };

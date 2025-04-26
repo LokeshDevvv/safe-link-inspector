@@ -1,4 +1,3 @@
-
 // URL safety checking utilities
 
 // Function to check if URL exists and returns a valid response
@@ -9,12 +8,30 @@ export const checkUrlResponse = async (url: string): Promise<{ valid: boolean; s
     
     // We use a proxy to avoid CORS issues
     const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(urlWithProtocol)}`);
-    const data = await response.json();
     
-    return {
-      valid: response.ok,
-      status: data.status?.http_code || (response.ok ? 200 : 404)
-    };
+    // Check if the response is ok first
+    if (!response.ok) {
+      console.log(`Proxy response not ok: ${response.status}`);
+      return { valid: false, status: response.status };
+    }
+    
+    // Try to parse the JSON response
+    try {
+      const data = await response.json();
+      // Check if we received an error from the proxy
+      if (data.error) {
+        console.log(`Proxy error: ${data.error}`);
+        return { valid: false, status: 404 };
+      }
+      
+      return {
+        valid: true,
+        status: data.status?.http_code || 200
+      };
+    } catch (parseError) {
+      console.error("Error parsing JSON response:", parseError);
+      return { valid: false, status: 0 };
+    }
   } catch (error) {
     console.error("Error checking URL:", error);
     return { valid: false };
@@ -227,6 +244,32 @@ export const assessUrlSafety = async (url: string): Promise<UrlSafetyResult> => 
       normalizedUrl = 'https://' + normalizedUrl;
     }
 
+    // Enhanced phishing detection for known patterns
+    const knownPhishingPatterns = [
+      /\.(?:tk|ml|ga|cf|gq)$/i,  // Free TLDs often used for phishing
+      /(?:paypal|apple|microsoft|amazon|google|facebook|twitter|instagram).*?-?(?:secure|login|verify|account).*?\.(?!com|net|org)/i,
+      /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,  // Raw IP addresses
+      /(?:secure|login|auth|account|signin|banking|update).*?-.*?(?:verify|confirm|secure|protect)/i,
+      /\.(pw|top|xyz|online|site|space|icu)$/i  // Additional suspicious TLDs
+    ];
+    
+    for (const pattern of knownPhishingPatterns) {
+      if (pattern.test(normalizedUrl)) {
+        return {
+          safe: false,
+          score: 5,
+          status: "UNSAFE",
+          statusCode: 0,
+          domainAge: 0,
+          creationDate: null,
+          suspicious: true,
+          similarTo: null,
+          suspiciousReasons: ["Matches known phishing pattern"],
+          message: "This URL matches patterns commonly used in phishing attacks."
+        };
+      }
+    }
+
     // Run all checks in parallel
     const [responseCheck, domainAgeCheck, suspiciousCheck, similarityCheck] = await Promise.all([
       checkUrlResponse(normalizedUrl),
@@ -240,9 +283,15 @@ export const assessUrlSafety = async (url: string): Promise<UrlSafetyResult> => 
 
     // Adjust score based on checks
     if (!responseCheck.valid) safetyScore -= 30;
-    if (domainAgeCheck.age < 30) safetyScore -= 20; // Penalize new domains
-    if (suspiciousCheck.suspicious) safetyScore -= 15 * suspiciousCheck.reasons.length;
+    if (domainAgeCheck.age < 30) safetyScore -= 20; // Penalize new domains more heavily
+    if (domainAgeCheck.age < 7) safetyScore -= 15; // Additional penalty for very new domains
+    if (suspiciousCheck.suspicious) safetyScore -= 15 * Math.min(suspiciousCheck.reasons.length, 5); // Cap at 75 points deduction
     if (similarityCheck.suspicious) safetyScore -= 25;
+
+    // Check for multiple suspicious factors
+    if (suspiciousCheck.suspicious && domainAgeCheck.age < 30 && similarityCheck.suspicious) {
+      safetyScore = Math.max(safetyScore - 20, 0); // Additional penalty for multiple factors
+    }
 
     // Ensure score is within bounds
     safetyScore = Math.max(0, Math.min(100, safetyScore));
@@ -257,10 +306,22 @@ export const assessUrlSafety = async (url: string): Promise<UrlSafetyResult> => 
       status = "UNSAFE";
     }
 
-    // Special case for known malicious sites
-    if (url.includes("google3.com")) {
-      safetyScore = 0;
-      status = "UNSAFE";
+    // Special cases for known bad domains
+    const knownBadDomains = [
+      /google\d+\.com/i,
+      /paypa[l1]\d*\.com/i,
+      /secure.*?-.*?login/i,
+      /verify.*?account.*?online/i,
+      /docusign-?online/i,
+      /\w+login\w*\.com/i
+    ];
+
+    for (const badPattern of knownBadDomains) {
+      if (badPattern.test(normalizedUrl)) {
+        safetyScore = 0;
+        status = "UNSAFE";
+        break;
+      }
     }
 
     return {
