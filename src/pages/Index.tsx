@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import UrlInputForm from '@/components/UrlInputForm';
@@ -23,27 +22,24 @@ const Index = () => {
       const safetyResult = await assessUrlSafety(url);
       setResult(safetyResult);
       
-      // Show toast notification based on result with appropriate icon
+      // Show toast notification based on result
       if (safetyResult.status === "SAFE") {
         toast({
           title: "URL Analyzed",
           description: "This URL appears to be safe.",
           variant: "default",
-          icon: <Shield className="h-4 w-4 text-safe" />
         });
       } else if (safetyResult.status === "WARNING") {
         toast({
           title: "Caution Advised",
           description: "This URL has some suspicious characteristics.",
           variant: "destructive",
-          icon: <ShieldAlert className="h-4 w-4 text-warning" />
         });
       } else if (safetyResult.status === "UNSAFE") {
         toast({
           title: "Warning: Unsafe URL",
           description: "This URL appears to be unsafe or malicious.",
           variant: "destructive",
-          icon: <Ban className="h-4 w-4 text-unsafe" />
         });
       }
     } catch (error) {

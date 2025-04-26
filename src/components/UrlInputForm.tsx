@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,6 @@ const UrlInputForm: React.FC<UrlInputFormProps> = ({ onCheckUrl, isLoading }) =>
           title: "Test URL Detected",
           description: "You're checking a test/example malicious URL. In a real scenario, never navigate to known malicious URLs.",
           variant: "default",
-          icon: <AlertTriangle className="h-4 w-4 text-warning" />
         });
       }
       onCheckUrl(url);
