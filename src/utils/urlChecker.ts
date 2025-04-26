@@ -385,4 +385,6 @@ export interface UrlSafetyResult {
   similarTo: string | null;
   suspiciousReasons: string[];
   message: string;
+  timestamp?: string;
+  apiVersion?: string;
 }

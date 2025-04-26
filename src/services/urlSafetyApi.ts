@@ -51,4 +51,3 @@ export class UrlSafetyService {
 // Export types for API responses
 export type UrlAnalysisResponse = Awaited<ReturnType<typeof UrlSafetyService.analyzeUrl>>;
 export type QuickCheckResponse = Awaited<ReturnType<typeof UrlSafetyService.quickCheck>>;
-
