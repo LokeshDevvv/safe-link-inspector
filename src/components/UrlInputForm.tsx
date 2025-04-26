@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X, AlertTriangle } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { UrlSafetyService } from '@/services/urlSafetyApi';
 
 interface UrlInputFormProps {
   onCheckUrl: (url: string) => void;
@@ -13,10 +15,10 @@ const UrlInputForm: React.FC<UrlInputFormProps> = ({ onCheckUrl, isLoading }) =>
   const [url, setUrl] = useState('');
   const { toast } = useToast();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (url.trim()) {
-      // Warn user if they're checking a known malicious test URL
+      // Warning for test URLs
       if (url.includes('google3.com') || url.includes('phishing') || url.includes('malware')) {
         toast({
           title: "Test URL Detected",
