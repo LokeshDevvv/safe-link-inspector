@@ -1,21 +1,34 @@
 
 // Simple toast hook implementation
-type ToastVariant = "default" | "destructive";
+import { useState } from "react";
 
-interface Toast {
+export type ToastVariant = "default" | "destructive";
+
+export interface Toast {
+  id?: string;
   title?: string;
   description?: string;
   variant?: ToastVariant;
+  action?: React.ReactNode;
 }
 
 export const useToast = () => {
-  const toast = ({ title, description, variant = "default" }: Toast) => {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  const toast = ({ title, description, variant = "default", ...props }: Toast) => {
+    const id = Math.random().toString(36).substring(2, 9);
     console.log(`TOAST: ${variant} - ${title} - ${description}`);
-    // In a real implementation, this would show a toast notification
-    // For now, we'll just log it
+    
+    setToasts((currentToasts) => [
+      ...currentToasts,
+      { id, title, description, variant, ...props },
+    ]);
+    
+    // In a real implementation, we would also auto-dismiss after a delay
+    // For simplicity, we'll just add it to the array
   };
 
-  return { toast };
+  return { toast, toasts };
 };
 
 export const toast = ({ title, description, variant = "default" }: Toast) => {

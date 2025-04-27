@@ -1,3 +1,4 @@
+
 export interface UrlSafetyResult {
   url: string;
   status: "SAFE" | "WARNING" | "UNSAFE" | "ERROR";
@@ -56,3 +57,6 @@ export const checkUrlSafety = async (url: string): Promise<UrlSafetyResult> => {
     };
   }
 };
+
+// Export assessUrlSafety as an alias for checkUrlSafety for backward compatibility
+export const assessUrlSafety = checkUrlSafety;
