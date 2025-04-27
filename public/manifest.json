@@ -1,0 +1,31 @@
+
+{
+  "manifest_version": 3,
+  "name": "URL Safety Checker",
+  "version": "1.0.0",
+  "description": "Check URLs for potential security risks before visiting them",
+  "permissions": [
+    "activeTab",
+    "contextMenus"
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
