@@ -19,6 +19,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'CHECK_URL' && message.url) {
+    checkUrlSafety(message.url);
+  }
+});
+
 // Function to check URL safety
 async function checkUrlSafety(url: string) {
   try {
