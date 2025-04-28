@@ -54,3 +54,5 @@ async function checkUrlSafety(url: string) {
     });
   }
 }
+
+export {}; // Add this to ensure the file is treated as a module
