@@ -5,17 +5,13 @@ import path from 'path';
 import { crx } from '@crxjs/vite-plugin';
 import manifest from './public/manifest.json';
 
-// Adjust the type to match what crx plugin expects
+// Create a properly typed manifest for crx plugin
 const manifestV3 = {
   ...manifest,
-  background: {
-    service_worker: "background.js",
-    type: "module" // This ensures type is exactly "module"
-  }
 };
 
 export default defineConfig({
-  plugins: [react(), crx({ manifest: manifestV3 as any })],
+  plugins: [react(), crx({ manifest: manifestV3 })],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
