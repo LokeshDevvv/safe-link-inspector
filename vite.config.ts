@@ -33,8 +33,9 @@ export default defineConfig(({ mode }) => ({
         background: path.resolve(__dirname, 'src/background.ts'),
       },
       output: {
+        chunkFileNames: '[name]-[hash].js',
         entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'background' ? 'background.js' : '[name].js';
+          return chunkInfo.name === 'background' ? 'background.js' : '[name]-[hash].js';
         },
       },
     },
