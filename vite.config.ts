@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         chunkFileNames: '[name]-[hash].js',
         entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'background' ? 'background.js' : '[name]-[hash].js';
+          return chunkInfo.name === 'background' ? 'src/background.js' : '[name]-[hash].js';
         },
       },
     },
