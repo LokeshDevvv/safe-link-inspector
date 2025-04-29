@@ -55,5 +55,12 @@ async function checkUrlSafety(url: string) {
   }
 }
 
-// This ensures the file is treated as a module
+// This function is called when the extension is installed or updated
+function setupExtension() {
+  console.log('URL Safety Checker extension initialized');
+}
+
+setupExtension();
+
+// Ensure the file is treated as a module
 export {};
