@@ -27,16 +27,23 @@ export default defineConfig(({ mode }) => ({
     port: 8080
   },
   build: {
+    outDir: 'dist',
+    sourcemap: mode === 'development',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
         background: path.resolve(__dirname, 'src/background.ts'),
       },
       output: {
-        chunkFileNames: '[name]-[hash].js',
         entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'background' ? 'src/background.js' : '[name]-[hash].js';
+          if (chunkInfo.name === 'background') {
+            return 'background.js';
+          }
+          return '[name]-[hash].js';
         },
+        chunkFileNames: '[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
   },
